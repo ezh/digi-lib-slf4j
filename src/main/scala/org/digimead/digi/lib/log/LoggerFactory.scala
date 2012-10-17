@@ -22,5 +22,16 @@ import org.digimead.digi.lib.log.logger.BaseLogger
 import org.slf4j.ILoggerFactory
 
 class LoggerFactory extends ILoggerFactory {
+  LoggerFactory // init
+
   def getLogger(name: String): org.slf4j.Logger = new BaseLogger(name)
+}
+
+object LoggerFactory {
+  if (LoggingInitializationArgument.nonEmpty) {
+    LoggingInitializationArgument = Some(new Logging.DefaultInit {
+      override val buffered = true
+      override def toString = "DefaultInit for Digi-Lib-SLF4J"
+    })
+  }
 }

@@ -52,6 +52,7 @@ class LoggingTestSimpleInit extends FunSuite with BeforeAndAfter with ShouldMatc
     Logging.addAppender(appender.Console)
     Logging.commonLogger.debug("Scheduling a background task check for {}.{} with {}",
       Array[Object]("a", "b", "c"))
+    // System.exit(0)
     Logging.delAppender(appender.Console)
   }
 }

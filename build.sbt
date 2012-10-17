@@ -29,7 +29,7 @@ description := "SLF4J binding for Digi components"
 
 organization := "org.digimead"
 
-version := "0.1"
+version := "0.2-SNAPSHOT"
 
 crossScalaVersions := Seq("2.8.2", "2.9.0", "2.9.0-1", "2.9.1", "2.9.2")
 
@@ -64,6 +64,7 @@ publishTo  <<= baseDirectory  { (base) => Some(Resolver.file("file",  base / "pu
 
 libraryDependencies ++= {
   Seq(
+    "org.digimead" %% "digi-lib" % "0.2.1-SNAPSHOT",
     "org.slf4j" % "slf4j-api" % "1.7.1"
   )
 }
