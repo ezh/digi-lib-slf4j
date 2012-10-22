@@ -12,7 +12,7 @@ DOCUMENTATION
 
 ```scala
 libraryDependencies += Seq(
-  "org.digimead" %% "digi-lib-slf4j" % "0.1"
+  "org.digimead" %% "digi-lib-slf4j" % "VERSION"
 )
 
 resolvers += "digi-lib-slf4j" at "http://ezh.github.com/digi-lib-slf4j/releases"

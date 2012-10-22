@@ -59,8 +59,8 @@ public class StaticLoggerBinder implements LoggerFactoryBinder {
 	private final ILoggerFactory loggerFactory;
 
 	private StaticLoggerBinder() {
-		// Binding specific code:
-		loggerFactory = new org.digimead.digi.lib.log.LoggerFactory();
+		// Binding specific code
+		loggerFactory = org.digimead.digi.lib.log.LoggerFactory$.MODULE$;
 	}
 
 	public ILoggerFactory getLoggerFactory() {
