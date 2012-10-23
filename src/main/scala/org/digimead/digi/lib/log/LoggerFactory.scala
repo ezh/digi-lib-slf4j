@@ -112,6 +112,9 @@ object LoggerFactory extends PersistentInjectable with ILoggerFactory {
     Logging.deinit()
   }
 
+  /**
+   * Configuration use in LoggerFactory for newly create loggers
+   */
   class Configuration(implicit val bindingModule: BindingModule) extends SubCutInjectable {
     val isTraceEnabled = injectOptional[Boolean]("Log.TraceEnabled") getOrElse true
     val isDebugEnabled = injectOptional[Boolean]("Log.DebugEnabled") getOrElse true

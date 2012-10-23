@@ -23,9 +23,32 @@ import org.digimead.digi.lib.log.logger.RichLogger.rich2slf4j
 import org.scalatest.FunSpec
 import org.scalatest.PrivateMethodTester
 import org.scalatest.matchers.ShouldMatchers
+import org.scala_tools.subcut.inject.NewBindingModule
 
 class LogSpec extends FunSpec with ShouldMatchers with PrivateMethodTester {
-  describe("A Log instances") {
+  describe("A Log") {
+    it("should have proper reinitialization") {
+      DependencyInjection.get.foreach(_ => DependencyInjection.clear)
+      val config = org.digimead.digi.lib.log.slf4j.default ~ org.digimead.digi.lib.default
+      DependencyInjection.set(config)
+      val privateInstance = PrivateMethod[Logging]('instance)
+
+      val loggerFactoryConfig = config.inject[LoggerFactory.Configuration](None)
+      loggerFactoryConfig should be theSameInstanceAs (config.inject[LoggerFactory.Configuration](None))
+      config.inject[Option[Logging.BufferedLogThread]](Some("Log.BufferedThread")) should not be theSameInstanceAs
+      (config.inject[Option[Logging.BufferedLogThread]](Some("Log.BufferedThread")))
+      loggerFactoryConfig.isTraceEnabled should be(true)
+      LoggerFactory.getLogger("A").isTraceEnabled() should be(true)
+
+      val newConfig = config ~ (NewBindingModule.newBindingModule(module => {
+        module.bind[Boolean] identifiedBy "Log.TraceEnabled" toSingle { false }
+      }))
+      DependencyInjection.reset(newConfig)
+      val newLoggerFactoryConfig = newConfig.inject[LoggerFactory.Configuration](None)
+      loggerFactoryConfig should not be theSameInstanceAs(newLoggerFactoryConfig)
+      newLoggerFactoryConfig.isTraceEnabled should be(false)
+      LoggerFactory.getLogger("B").isTraceEnabled() should be(false)
+    }
     it("should create singeton with default parameters") {
       DependencyInjection.get.foreach(_ => DependencyInjection.clear)
       val config = org.digimead.digi.lib.log.slf4j.default ~ org.digimead.digi.lib.log.default

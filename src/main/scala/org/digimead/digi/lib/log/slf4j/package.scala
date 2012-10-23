@@ -20,15 +20,17 @@ package org.digimead.digi.lib.log
 
 import scala.collection.immutable.HashSet
 
+import org.digimead.digi.lib.DependencyInjection
 import org.digimead.digi.lib.log.appender.Appender
 import org.digimead.digi.lib.log.appender.Console
 import org.scala_tools.subcut.inject.NewBindingModule
 
 package object slf4j {
-  val default = new NewBindingModule(module => {
+  lazy val default = new NewBindingModule(module => {
     module.bind[() => Any] identifiedBy "Log.ShutdownHook" toSingle { () => LoggerFactory.shutdownHook }
     module.bind[Option[Logging.BufferedLogThread]] identifiedBy "Log.BufferedThread" toProvider { Some(new LoggerFactory.BufferedLogThread) }
     module.bind[HashSet[Appender]] identifiedBy "Log.BufferedAppenders" toSingle { HashSet[Appender](Console) }
-    module.bind[LoggerFactory.Configuration] toModuleSingle { implicit module => new LoggerFactory.Configuration }
+    lazy val loggerConfigurationSingleton = DependencyInjection.makeSingleton(implicit module => new LoggerFactory.Configuration)
+    module.bind[LoggerFactory.Configuration] toModuleSingle { loggerConfigurationSingleton(_) }
   })
 }
