@@ -37,23 +37,19 @@ import org.slf4j.ILoggerFactory
 
 object LoggerFactory extends PersistentInjectable with ILoggerFactory {
   implicit def bindingModule = DependencyInjection()
-  @volatile private var instance = inject[Configuration]
+  @volatile private var inner = inject[Configuration]
 
   def getLogger(name: String): org.slf4j.Logger = {
     new BaseLogger(name,
-      Logging.isTraceWhereEnabled,
-      LoggerFactory.instance.isTraceEnabled,
-      LoggerFactory.instance.isDebugEnabled,
-      LoggerFactory.instance.isInfoEnabled,
-      LoggerFactory.instance.isWarnEnabled,
-      LoggerFactory.instance.isErrorEnabled,
-      Logging.record.pid,
-      Logging.record.builder,
-      Logging.offer)
+      LoggerFactory.inner.isTraceEnabled,
+      LoggerFactory.inner.isDebugEnabled,
+      LoggerFactory.inner.isInfoEnabled,
+      LoggerFactory.inner.isWarnEnabled,
+      LoggerFactory.inner.isErrorEnabled)
   }
-  def reloadInjection() = synchronized {
-    instance = inject[Configuration]
-  }
+  def commitInjection() {}
+  def updateInjection() { inner = inject[Configuration] }
+
   class BufferedLogThread extends Logging.BufferedLogThread() {
     lazy val flushLimit = Logging.bufferedFlushLimit
     this.setDaemon(true)
