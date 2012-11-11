@@ -31,9 +31,10 @@ import org.digimead.digi.lib.DependencyInjection.PersistentInjectable
 import org.digimead.digi.lib.log.Logging.instance2Logging
 import org.digimead.digi.lib.log.logger.BaseLogger
 import org.digimead.digi.lib.log.logger.RichLogger.rich2slf4j
-import org.scala_tools.subcut.inject.BindingModule
-import org.scala_tools.subcut.inject.{ Injectable => SubCutInjectable }
 import org.slf4j.ILoggerFactory
+
+import com.escalatesoft.subcut.inject.BindingModule
+import com.escalatesoft.subcut.inject.{ Injectable => SubCutInjectable }
 
 object LoggerFactory extends PersistentInjectable with ILoggerFactory {
   implicit def bindingModule = DependencyInjection()
@@ -51,7 +52,7 @@ object LoggerFactory extends PersistentInjectable with ILoggerFactory {
   def updateInjection() { inner = inject[Configuration] }
 
   class BufferedLogThread extends Logging.BufferedLogThread() {
-    lazy val flushLimit = Logging.bufferedFlushLimit
+    lazy val flushLimit = Logging.inner.bufferedFlushLimit
     this.setDaemon(true)
     val lock = new AtomicReference[Option[Boolean]](Some(false))
 
@@ -61,11 +62,11 @@ object LoggerFactory extends PersistentInjectable with ILoggerFactory {
     }
     @tailrec
     final override def run() = {
-      if (!Logging.bufferedQueue.isEmpty) {
-        Logging.flushQueue(flushLimit, 100)
+      if (!Logging.inner.bufferedQueue.isEmpty) {
+        Logging.inner.flushQueue(flushLimit, 100)
         Thread.sleep(50)
       } else
-        Logging.bufferedQueue.synchronized { Logging.bufferedQueue.wait }
+        Logging.inner.bufferedQueue.synchronized { Logging.inner.bufferedQueue.wait }
       while (lock.get == Some(false))
         lock.synchronized { lock.wait() }
       if (lock.get.nonEmpty)
@@ -84,17 +85,17 @@ object LoggerFactory extends PersistentInjectable with ILoggerFactory {
     def deinit() = lock.synchronized {
       assert(lock.get.nonEmpty, "lock disabled, BufferedLogThread deinitialized")
       lock.set(None)
-      Logging.bufferedQueue.synchronized { Logging.bufferedQueue.notifyAll }
+      Logging.inner.bufferedQueue.synchronized { Logging.inner.bufferedQueue.notifyAll }
       lock.notifyAll()
     }
   }
   protected[log] def shutdownHook() {
-    Logging.addToLog(new Date(), Thread.currentThread.getId, Record.Level.Debug, Logging.commonLogger.getName, "buffered logging is preparing for shutdown")
+    Logging.addToLog(new Date(), Thread.currentThread.getId, Record.Level.Debug, Logging.inner.commonLogger.getName, "buffered logging is preparing for shutdown")
     def isQueueEmpty(): Boolean = {
-      if (!Logging.bufferedQueue.isEmpty)
+      if (!Logging.inner.bufferedQueue.isEmpty)
         return false
       Thread.sleep(500)
-      Logging.bufferedQueue.isEmpty
+      Logging.inner.bufferedQueue.isEmpty
     }
     // wait for log messages 10min before termination
     breakable {
@@ -102,10 +103,10 @@ object LoggerFactory extends PersistentInjectable with ILoggerFactory {
         if (isQueueEmpty())
           break
         else
-          Logging.flush(0)
+          Logging.inner.flush(0)
     }
-    Logging.addToLog(new Date(), Thread.currentThread.getId, Record.Level.Debug, Logging.commonLogger.getName, "no more log messages, shutdown")
-    Logging.deinit()
+    Logging.addToLog(new Date(), Thread.currentThread.getId, Record.Level.Debug, Logging.inner.commonLogger.getName, "no more log messages, shutdown")
+    Logging.inner.deinit()
   }
 
   /**

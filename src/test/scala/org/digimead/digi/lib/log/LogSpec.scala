@@ -23,7 +23,8 @@ import org.digimead.digi.lib.log.logger.RichLogger.rich2slf4j
 import org.scalatest.FunSpec
 import org.scalatest.PrivateMethodTester
 import org.scalatest.matchers.ShouldMatchers
-import org.scala_tools.subcut.inject.NewBindingModule
+
+import com.escalatesoft.subcut.inject.NewBindingModule
 
 class LogSpec extends FunSpec with ShouldMatchers with PrivateMethodTester {
   describe("A Log") {
@@ -31,7 +32,7 @@ class LogSpec extends FunSpec with ShouldMatchers with PrivateMethodTester {
       DependencyInjection.get.foreach(_ => DependencyInjection.clear)
       val config = org.digimead.digi.lib.log.slf4j.default ~ org.digimead.digi.lib.default
       DependencyInjection.set(config)
-      val privateInstance = PrivateMethod[Logging]('instance)
+      val privateInstance = PrivateMethod[Logging]('implementation)
 
       val loggerFactoryConfig = config.inject[LoggerFactory.Configuration](None)
       loggerFactoryConfig should be theSameInstanceAs (config.inject[LoggerFactory.Configuration](None))
@@ -53,7 +54,7 @@ class LogSpec extends FunSpec with ShouldMatchers with PrivateMethodTester {
       DependencyInjection.get.foreach(_ => DependencyInjection.clear)
       val config = org.digimead.digi.lib.log.slf4j.default ~ org.digimead.digi.lib.log.default
       DependencyInjection.set(config)
-      val privateInstance = PrivateMethod[Logging]('instance)
+      val privateInstance = PrivateMethod[Logging]('implementation)
       val instance = Logging invokePrivate privateInstance()
       instance.record should not be (null)
       instance.builder should not be (null)
