@@ -28,7 +28,6 @@ import scala.util.control.Breaks.breakable
 
 import org.digimead.digi.lib.DependencyInjection
 import org.digimead.digi.lib.DependencyInjection.PersistentInjectable
-import org.digimead.digi.lib.log.Logging.instance2Logging
 import org.digimead.digi.lib.log.logger.BaseLogger
 import org.digimead.digi.lib.log.logger.RichLogger.rich2slf4j
 import org.slf4j.ILoggerFactory
