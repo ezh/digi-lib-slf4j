@@ -1,7 +1,7 @@
 /**
  * Digi-Lib-SLF4J - SLF4J binding for Digi components
  *
- * Copyright (c) 2012 Alexey Aksenov ezh@ezh.msk.ru
+ * Copyright (c) 2012-2013 Alexey Aksenov ezh@ezh.msk.ru
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,13 +26,12 @@ import org.scalatest.matchers.ShouldMatchers
 
 import com.escalatesoft.subcut.inject.NewBindingModule
 
-class LogSpec extends FunSpec with ShouldMatchers with PrivateMethodTester {
+class LogSpec extends FunSpec with ShouldMatchers {
   describe("A Log") {
     it("should have proper reinitialization") {
       DependencyInjection.get.foreach(_ => DependencyInjection.clear)
       val config = org.digimead.digi.lib.log.slf4j.default ~ org.digimead.digi.lib.default
       DependencyInjection.set(config)
-      val privateInstance = PrivateMethod[Logging]('implementation)
 
       val loggerFactoryConfig = config.inject[LoggerFactory.Configuration](None)
       loggerFactoryConfig should be theSameInstanceAs (config.inject[LoggerFactory.Configuration](None))
@@ -52,10 +51,9 @@ class LogSpec extends FunSpec with ShouldMatchers with PrivateMethodTester {
     }
     it("should create singeton with default parameters") {
       DependencyInjection.get.foreach(_ => DependencyInjection.clear)
-      val config = org.digimead.digi.lib.log.slf4j.default ~ org.digimead.digi.lib.log.default
+      val config = org.digimead.digi.lib.log.slf4j.default ~ org.digimead.digi.lib.default
       DependencyInjection.set(config)
-      val privateInstance = PrivateMethod[Logging]('implementation)
-      val instance = Logging invokePrivate privateInstance()
+      val instance = Logging.inner
       instance.record should not be (null)
       instance.builder should not be (null)
       instance.isTraceWhereEnabled should be(false)
@@ -63,7 +61,7 @@ class LogSpec extends FunSpec with ShouldMatchers with PrivateMethodTester {
       instance.bufferedFlushLimit should be(1000)
       instance.shutdownHook should not be ('empty)
       instance.bufferedAppender.size should be(1)
-      instance.richLogger.size should be(1)
+      instance.richLogger.size should be(2) // Logging + Caching
       instance.commonLogger should not be (null)
 
       val testClass = new Loggable {

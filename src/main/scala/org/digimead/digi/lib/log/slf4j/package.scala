@@ -1,7 +1,7 @@
 /**
  * Digi-Lib-SLF4J - SLF4J binding for Digi components
  *
- * Copyright (c) 2012 Alexey Aksenov ezh@ezh.msk.ru
+ * Copyright (c) 2012-2013 Alexey Aksenov ezh@ezh.msk.ru
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ package org.digimead.digi.lib.log
 
 import scala.collection.immutable.HashSet
 
+import org.digimead.digi.lib.DependencyInjection
 import org.digimead.digi.lib.log.appender.Appender
 import org.digimead.digi.lib.log.appender.Console
 
@@ -32,4 +33,5 @@ package object slf4j {
     module.bind[HashSet[Appender]] identifiedBy "Log.BufferedAppenders" toSingle { HashSet[Appender](Console) }
     module.bind[LoggerFactory.Configuration] toModuleSingle { implicit module => new LoggerFactory.Configuration }
   })
+  DependencyInjection.setPersistentInjectable("org.digimead.digi.lib.log.LoggerFactory$")
 }

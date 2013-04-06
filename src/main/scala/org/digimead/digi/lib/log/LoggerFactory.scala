@@ -1,7 +1,7 @@
 /**
  * Digi-Lib-SLF4J - SLF4J binding for Digi components
  *
- * Copyright (c) 2012 Alexey Aksenov ezh@ezh.msk.ru
+ * Copyright (c) 2012-2013 Alexey Aksenov ezh@ezh.msk.ru
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,6 @@ import com.escalatesoft.subcut.inject.{ Injectable => SubCutInjectable }
 
 object LoggerFactory extends PersistentInjectable with ILoggerFactory {
   implicit def bindingModule = DependencyInjection()
-  @volatile private var inner = inject[Configuration]
 
   def getLogger(name: String): org.slf4j.Logger = {
     new BaseLogger(name,
@@ -47,8 +46,10 @@ object LoggerFactory extends PersistentInjectable with ILoggerFactory {
       LoggerFactory.inner.isWarnEnabled,
       LoggerFactory.inner.isErrorEnabled)
   }
-  def commitInjection() {}
-  def updateInjection() { inner = inject[Configuration] }
+  /*
+   * dependency injection
+   */
+  def inner() = inject[Configuration]
 
   class BufferedLogThread extends Logging.BufferedLogThread() {
     lazy val flushLimit = Logging.inner.bufferedFlushLimit
@@ -61,11 +62,12 @@ object LoggerFactory extends PersistentInjectable with ILoggerFactory {
     }
     @tailrec
     final override def run() = {
-      if (!Logging.inner.bufferedQueue.isEmpty) {
-        Logging.inner.flushQueue(flushLimit, 100)
+      val logging = Logging.inner
+      if (!logging.bufferedQueue.isEmpty) {
+        logging.flushQueue(flushLimit, 100)
         Thread.sleep(50)
       } else
-        Logging.inner.bufferedQueue.synchronized { Logging.inner.bufferedQueue.wait }
+        logging.bufferedQueue.synchronized { logging.bufferedQueue.wait }
       while (lock.get == Some(false))
         lock.synchronized { lock.wait() }
       if (lock.get.nonEmpty)
