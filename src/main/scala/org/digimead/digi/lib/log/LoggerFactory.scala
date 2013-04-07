@@ -27,7 +27,6 @@ import scala.util.control.Breaks.break
 import scala.util.control.Breaks.breakable
 
 import org.digimead.digi.lib.DependencyInjection
-import org.digimead.digi.lib.DependencyInjection.PersistentInjectable
 import org.digimead.digi.lib.log.logger.BaseLogger
 import org.digimead.digi.lib.log.logger.RichLogger.rich2slf4j
 import org.slf4j.ILoggerFactory
@@ -35,7 +34,7 @@ import org.slf4j.ILoggerFactory
 import com.escalatesoft.subcut.inject.BindingModule
 import com.escalatesoft.subcut.inject.{ Injectable => SubCutInjectable }
 
-object LoggerFactory extends PersistentInjectable with ILoggerFactory {
+object LoggerFactory extends DependencyInjection.PersistentInjectable with ILoggerFactory {
   implicit def bindingModule = DependencyInjection()
 
   def getLogger(name: String): org.slf4j.Logger = {
