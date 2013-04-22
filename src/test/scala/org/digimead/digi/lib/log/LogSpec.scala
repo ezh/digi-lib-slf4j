@@ -61,7 +61,7 @@ class LogSpec extends FunSpec with ShouldMatchers {
       instance.bufferedFlushLimit should be(1000)
       instance.shutdownHook should not be ('empty)
       instance.bufferedAppender.size should be(1)
-      instance.richLogger.size should be(2) // Logging + Caching
+      instance.richLogger.size should be(1)
       instance.commonLogger should not be (null)
 
       val testClass = new Loggable {

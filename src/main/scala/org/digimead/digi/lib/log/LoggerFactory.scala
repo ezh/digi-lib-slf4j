@@ -34,21 +34,20 @@ import org.slf4j.ILoggerFactory
 import com.escalatesoft.subcut.inject.BindingModule
 import com.escalatesoft.subcut.inject.{ Injectable => SubCutInjectable }
 
-object LoggerFactory extends DependencyInjection.PersistentInjectable with ILoggerFactory {
-  implicit def bindingModule = DependencyInjection()
+object LoggerFactory extends ILoggerFactory {
 
   def getLogger(name: String): org.slf4j.Logger = {
     new BaseLogger(name,
-      LoggerFactory.inner.isTraceEnabled,
-      LoggerFactory.inner.isDebugEnabled,
-      LoggerFactory.inner.isInfoEnabled,
-      LoggerFactory.inner.isWarnEnabled,
-      LoggerFactory.inner.isErrorEnabled)
+      LoggerFactory.configuration.isTraceEnabled,
+      LoggerFactory.configuration.isDebugEnabled,
+      LoggerFactory.configuration.isInfoEnabled,
+      LoggerFactory.configuration.isWarnEnabled,
+      LoggerFactory.configuration.isErrorEnabled)
   }
   /*
    * dependency injection
    */
-  def inner() = inject[Configuration]
+  def configuration() = DI.configuration
 
   class BufferedLogThread extends Logging.BufferedLogThread() {
     lazy val flushLimit = Logging.inner.bufferedFlushLimit
@@ -118,5 +117,17 @@ object LoggerFactory extends DependencyInjection.PersistentInjectable with ILogg
     val isInfoEnabled = injectOptional[Boolean]("Log.InfoEnabled") getOrElse true
     val isWarnEnabled = injectOptional[Boolean]("Log.WarnEnabled") getOrElse true
     val isErrorEnabled = injectOptional[Boolean]("Log.ErrorEnabled") getOrElse true
+  }
+  /**
+   * Dependency injection routines
+   */
+  private object DI extends DependencyInjection.PersistentInjectable {
+    implicit def bindingModule = DependencyInjection()
+    /** Logging configuration DI cache */
+    @volatile var configuration = inject[Configuration]
+
+    override def injectionAfter(newModule: BindingModule) {
+      configuration = inject[Configuration]
+    }
   }
 }

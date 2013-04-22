@@ -33,5 +33,5 @@ package object slf4j {
     module.bind[HashSet[Appender]] identifiedBy "Log.BufferedAppenders" toSingle { HashSet[Appender](Console) }
     module.bind[LoggerFactory.Configuration] toModuleSingle { implicit module => new LoggerFactory.Configuration }
   })
-  DependencyInjection.setPersistentInjectable("org.digimead.digi.lib.log.LoggerFactory$")
+  DependencyInjection.setPersistentInjectable("org.digimead.digi.lib.log.LoggerFactory$DI$")
 }
