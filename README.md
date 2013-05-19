@@ -24,8 +24,8 @@ Download jar files directly from the [GitHub](https://github.com/ezh/digi-lib-sl
 
 ## Target platform
 
-* Scala 2.8.2, 2.9.0, 2.9.0-1, 2.9.1, 2.9.2 (request for more if needed)
-* JVM 1.5+
+* Scala 2.10.1 (request for more if needed)
+* JVM 1.6+
 * The only 3rd-party library dependency is [SLF4J](http://www.slf4j.org/)
 
 ## Participate in the development ##
@@ -62,4 +62,4 @@ Please check the individual source files for details.
 Copyright
 ---------
 
-Copyright © 2012 Alexey B. Aksenov/Ezh. All rights reserved.
+Copyright © 2012-2013 Alexey B. Aksenov/Ezh. All rights reserved.

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2012 Alexey Aksenov ezh@ezh.msk.ru
+// Copyright (c) 2012-2013 Alexey Aksenov ezh@ezh.msk.ru
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,6 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// DEVELOPMENT CONFIGURATION
+
+import sbt.osgi.manager._
+
+sbt.scct.ScctPlugin.instrumentSettings
+
+activateOSGiManager
+
 name := "Digi-Lib-SLF4J"
 
 description := "SLF4J binding for Digi components"
@@ -21,31 +29,39 @@ organization := "org.digimead"
 
 version <<= (baseDirectory) { (b) => scala.io.Source.fromFile(b / "version").mkString.trim }
 
-scalaVersion := "2.9.2"
+inConfig(OSGiConf)({
+  import OSGiKey._
+  Seq[Project.Setting[_]](
+    osgiBndBundleSymbolicName := "org.digimead.digi.lib",
+    osgiBndImportPackage := List("!org.aspectj.lang", "*"),
+    osgiBndExportPackage := List("org.digimead.*", "org.slf4j.impl.*")
+  )
+})
 
-crossScalaVersions := Seq("2.8.2", "2.9.0", "2.9.0-1", "2.9.1", "2.9.2")
+crossScalaVersions := Seq("2.10.1")
 
-scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-unchecked", "-Xcheckinit") ++
+scalaVersion := "2.10.1"
+
+scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-unchecked", "-Xcheckinit", "-feature") ++
   (if (true || (System getProperty "java.runtime.version" startsWith "1.7")) Seq() else Seq("-optimize")) // -optimize fails with jdk7
 
-javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation")
+javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation", "-source", "1.6", "-target", "1.6")
 
 publishTo  <<= baseDirectory  { (base) => Some(Resolver.file("file",  base / "publish/releases" )) }
 
-resolvers += ("snapshots" at "http://oss.sonatype.org/content/repositories/snapshots")
-
-moduleConfigurations := {
-  val digilib = "digi-lib" at "http://ezh.github.com/digi-lib/releases"
-  Seq(
-    ModuleConfiguration("org.digimead", "digi-lib", digilib)
-  )
-}
-
 libraryDependencies ++= {
   Seq(
-    "org.digimead" %% "digi-lib" % "0.2.1-SNAPSHOT",
-    "org.slf4j" % "slf4j-api" % "1.7.1"
+    "org.digimead" %% "digi-lib" % "0.2.3",
+    "org.scalatest" %% "scalatest" % "1.9.1" % "test"
+      excludeAll(ExclusionRule("org.scala-lang", "scala-reflect"), ExclusionRule("org.scala-lang", "scala-actors")),
+    "org.slf4j" % "slf4j-log4j12" % "1.7.1" % "test"
   )
 }
 
-sourceDirectory in Test  <<= baseDirectory / "Testing Infrastructure Is Absent"
+parallelExecution in Test := false
+
+parallelExecution in sbt.scct.ScctPlugin.ScctTest := false
+
+//sourceDirectory in Test <<= baseDirectory / "Testing Infrastructure Is Absent"
+
+//logLevel := Level.Debug

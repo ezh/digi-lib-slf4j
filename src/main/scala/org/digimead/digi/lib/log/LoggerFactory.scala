@@ -1,7 +1,7 @@
 /**
  * Digi-Lib-SLF4J - SLF4J binding for Digi components
  *
- * Copyright (c) 2012 Alexey Aksenov ezh@ezh.msk.ru
+ * Copyright (c) 2012-2013 Alexey Aksenov ezh@ezh.msk.ru
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,35 +27,30 @@ import scala.util.control.Breaks.break
 import scala.util.control.Breaks.breakable
 
 import org.digimead.digi.lib.DependencyInjection
-import org.digimead.digi.lib.DependencyInjection.PersistentInjectable
-import org.digimead.digi.lib.log.Logging.instance2Logging
 import org.digimead.digi.lib.log.logger.BaseLogger
 import org.digimead.digi.lib.log.logger.RichLogger.rich2slf4j
-import org.scala_tools.subcut.inject.BindingModule
-import org.scala_tools.subcut.inject.{ Injectable => SubCutInjectable }
 import org.slf4j.ILoggerFactory
 
-object LoggerFactory extends PersistentInjectable with ILoggerFactory {
-  implicit def bindingModule = DependencyInjection()
-  @volatile private var instance = inject[Configuration]
+import com.escalatesoft.subcut.inject.BindingModule
+import com.escalatesoft.subcut.inject.{ Injectable => SubCutInjectable }
+
+object LoggerFactory extends ILoggerFactory {
 
   def getLogger(name: String): org.slf4j.Logger = {
     new BaseLogger(name,
-      Logging.isTraceWhereEnabled,
-      LoggerFactory.instance.isTraceEnabled,
-      LoggerFactory.instance.isDebugEnabled,
-      LoggerFactory.instance.isInfoEnabled,
-      LoggerFactory.instance.isWarnEnabled,
-      LoggerFactory.instance.isErrorEnabled,
-      Logging.record.pid,
-      Logging.record.builder,
-      Logging.offer)
+      LoggerFactory.configuration.isTraceEnabled,
+      LoggerFactory.configuration.isDebugEnabled,
+      LoggerFactory.configuration.isInfoEnabled,
+      LoggerFactory.configuration.isWarnEnabled,
+      LoggerFactory.configuration.isErrorEnabled)
   }
-  def reloadInjection() = synchronized {
-    instance = inject[Configuration]
-  }
+  /*
+   * dependency injection
+   */
+  def configuration() = DI.configuration
+
   class BufferedLogThread extends Logging.BufferedLogThread() {
-    lazy val flushLimit = Logging.bufferedFlushLimit
+    lazy val flushLimit = Logging.inner.bufferedFlushLimit
     this.setDaemon(true)
     val lock = new AtomicReference[Option[Boolean]](Some(false))
 
@@ -65,11 +60,12 @@ object LoggerFactory extends PersistentInjectable with ILoggerFactory {
     }
     @tailrec
     final override def run() = {
-      if (!Logging.bufferedQueue.isEmpty) {
-        Logging.flushQueue(flushLimit, 100)
+      val logging = Logging.inner
+      if (!logging.bufferedQueue.isEmpty) {
+        logging.flushQueue(flushLimit, 100)
         Thread.sleep(50)
       } else
-        Logging.bufferedQueue.synchronized { Logging.bufferedQueue.wait }
+        logging.bufferedQueue.synchronized { logging.bufferedQueue.wait }
       while (lock.get == Some(false))
         lock.synchronized { lock.wait() }
       if (lock.get.nonEmpty)
@@ -88,17 +84,17 @@ object LoggerFactory extends PersistentInjectable with ILoggerFactory {
     def deinit() = lock.synchronized {
       assert(lock.get.nonEmpty, "lock disabled, BufferedLogThread deinitialized")
       lock.set(None)
-      Logging.bufferedQueue.synchronized { Logging.bufferedQueue.notifyAll }
+      Logging.inner.bufferedQueue.synchronized { Logging.inner.bufferedQueue.notifyAll }
       lock.notifyAll()
     }
   }
   protected[log] def shutdownHook() {
-    Logging.addToLog(new Date(), Thread.currentThread.getId, Record.Level.Debug, Logging.commonLogger.getName, "buffered logging is preparing for shutdown")
+    Logging.addToLog(new Date(), Thread.currentThread.getId, Record.Level.Debug, Logging.inner.commonLogger.getName, "buffered logging is preparing for shutdown")
     def isQueueEmpty(): Boolean = {
-      if (!Logging.bufferedQueue.isEmpty)
+      if (!Logging.inner.bufferedQueue.isEmpty)
         return false
       Thread.sleep(500)
-      Logging.bufferedQueue.isEmpty
+      Logging.inner.bufferedQueue.isEmpty
     }
     // wait for log messages 10min before termination
     breakable {
@@ -106,17 +102,32 @@ object LoggerFactory extends PersistentInjectable with ILoggerFactory {
         if (isQueueEmpty())
           break
         else
-          Logging.flush(0)
+          Logging.inner.flush(0)
     }
-    Logging.addToLog(new Date(), Thread.currentThread.getId, Record.Level.Debug, Logging.commonLogger.getName, "no more log messages, shutdown")
-    Logging.deinit()
+    Logging.addToLog(new Date(), Thread.currentThread.getId, Record.Level.Debug, Logging.inner.commonLogger.getName, "no more log messages, shutdown")
+    Logging.inner.deinit()
   }
 
+  /**
+   * Configuration use in LoggerFactory for newly create loggers
+   */
   class Configuration(implicit val bindingModule: BindingModule) extends SubCutInjectable {
     val isTraceEnabled = injectOptional[Boolean]("Log.TraceEnabled") getOrElse true
     val isDebugEnabled = injectOptional[Boolean]("Log.DebugEnabled") getOrElse true
     val isInfoEnabled = injectOptional[Boolean]("Log.InfoEnabled") getOrElse true
     val isWarnEnabled = injectOptional[Boolean]("Log.WarnEnabled") getOrElse true
     val isErrorEnabled = injectOptional[Boolean]("Log.ErrorEnabled") getOrElse true
+  }
+  /**
+   * Dependency injection routines
+   */
+  private object DI extends DependencyInjection.PersistentInjectable {
+    implicit def bindingModule = DependencyInjection()
+    /** Logging configuration DI cache */
+    @volatile var configuration = inject[Configuration]
+
+    override def injectionAfter(newModule: BindingModule) {
+      configuration = inject[Configuration]
+    }
   }
 }
