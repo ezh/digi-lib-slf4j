@@ -27,6 +27,10 @@ description := "SLF4J binding for Digi components"
 
 organization := "org.digimead"
 
+organizationHomepage := Some(url("http://digimead.org"))
+
+homepage := Some(url("https://github.com/ezh/digi-lib-slf4j"))
+
 version <<= (baseDirectory) { (b) => scala.io.Source.fromFile(b / "version").mkString.trim }
 
 inConfig(OSGiConf)({
@@ -45,9 +49,14 @@ scalaVersion := "2.10.1"
 scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-unchecked", "-Xcheckinit", "-feature") ++
   (if (true || (System getProperty "java.runtime.version" startsWith "1.7")) Seq() else Seq("-optimize")) // -optimize fails with jdk7
 
+// http://vanillajava.blogspot.ru/2012/02/using-java-7-to-target-much-older-jvms.html
 javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation", "-source", "1.6", "-target", "1.6")
 
-publishTo  <<= baseDirectory  { (base) => Some(Resolver.file("file",  base / "publish/releases" )) }
+if (sys.env.contains("XBOOTCLASSPATH")) Seq(javacOptions += "-Xbootclasspath:" + sys.env("XBOOTCLASSPATH")) else Seq()
+
+compileOrder := CompileOrder.JavaThenScala
+
+resolvers += "digimead-maven" at "http://storage.googleapis.com/maven.repository.digimead.org/"
 
 libraryDependencies ++= {
   Seq(
