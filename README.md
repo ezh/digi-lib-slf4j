@@ -1,5 +1,6 @@
 digi-lib-slf4j
 ==============
+[![Build Status](https://travis-ci.org/ezh/digi-lib-slf4j.png?branch=master)](https://travis-ci.org/ezh/digi-lib-slf4j)
 
 SLF4J binding for Digi components
 
