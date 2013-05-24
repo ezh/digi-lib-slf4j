@@ -1,7 +1,5 @@
-digi-lib-slf4j
+digi-lib-slf4j [![Build Status](https://travis-ci.org/ezh/digi-lib-slf4j.png?branch=master)](https://travis-ci.org/ezh/digi-lib-slf4j) [![Coverage Status](https://coveralls.io/repos/ezh/digi-lib-slf4j/badge.png?branch=master)](https://coveralls.io/r/ezh/digi-lib-slf4j?branch=master)
 ==============
-[![Build Status](https://travis-ci.org/ezh/digi-lib-slf4j.png?branch=master)](https://travis-ci.org/ezh/digi-lib-slf4j)
-
 SLF4J binding for Digi components
 
 If you want improve it, please send request to _ezh_ at _ezh.msk.ru_. You will be given the permissions to the repository. Please, feel free to add yourself to authors.
@@ -11,15 +9,21 @@ DOCUMENTATION
 
 ### Setup
 
-```scala
-libraryDependencies += Seq(
-  "org.digimead" %% "digi-lib-slf4j" % "VERSION"
-)
+Add Maven or Ivy repository:
 
-resolvers += "digi-lib-slf4j" at "http://ezh.github.com/digi-lib-slf4j/releases"
+```scala
+resolvers += "digimead-maven" at "http://storage.googleapis.com/maven.repository.digimead.org/"
 ```
 
-Download jar files directly from the [GitHub](https://github.com/ezh/digi-lib-slf4j/tree/master/publish/releases/org/digimead)
+```scala
+resolvers += Resolver.url("digimead-ivy", url("http://storage.googleapis.com/ivy.repository.digimead.org/"))(Resolver.defaultIvyPatterns)
+```
+
+Add dependency:
+
+```scala
+libraryDependencies += "org.digimead" %% "digi-lib-slf4j" % "VERSION"
+```
 
 ### [API (latest version)](http://ezh.github.com/digi-lib-slf4j/api/)
 
@@ -27,7 +31,7 @@ Download jar files directly from the [GitHub](https://github.com/ezh/digi-lib-sl
 
 * Scala 2.10.1 (request for more if needed)
 * JVM 1.6+
-* The only 3rd-party library dependency is [SLF4J](http://www.slf4j.org/)
+* The library dependencies are [Digi-Lib](https://github.com/ezh/digi-lib) and [SLF4J](http://www.slf4j.org/)
 
 ## Participate in the development ##
 
