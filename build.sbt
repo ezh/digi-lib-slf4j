@@ -17,9 +17,7 @@
 
 import sbt.osgi.manager._
 
-sbt.scct.ScctPlugin.instrumentSettings
-
-activateOSGiManager
+activateOSGiManager ++ sbt.scct.ScctPlugin.instrumentSettings
 
 name := "Digi-Lib-SLF4J"
 
@@ -38,9 +36,11 @@ version <<= (baseDirectory) { (b) => scala.io.Source.fromFile(b / "version").mkS
 inConfig(OSGiConf)({
   import OSGiKey._
   Seq[Project.Setting[_]](
-    osgiBndBundleSymbolicName := "org.digimead.digi.lib",
+    osgiBndBundleSymbolicName := "org.digimead.digi.lib.slf4j",
+    osgiBndBundleCopyright := "Copyright © 2011-2013 Alexey B. Aksenov/Ezh. All rights reserved.",
+    osgiBndExportPackage := List("org.digimead.*", "org.slf4j.impl.*"),
     osgiBndImportPackage := List("!org.aspectj.lang", "*"),
-    osgiBndExportPackage := List("org.digimead.*", "org.slf4j.impl.*")
+    osgiBndBundleLicense := "http://www.apache.org/licenses/LICENSE-2.0.txt;description=The Apache Software License, Version 2.0"
   )
 })
 
@@ -58,14 +58,12 @@ if (sys.env.contains("XBOOTCLASSPATH")) Seq(javacOptions += "-Xbootclasspath:" +
 
 resolvers += "digimead-maven" at "http://storage.googleapis.com/maven.repository.digimead.org/"
 
-libraryDependencies ++= {
-  Seq(
+libraryDependencies ++= Seq(
     "org.digimead" %% "digi-lib" % "0.2.3",
     "org.scalatest" %% "scalatest" % "1.9.1" % "test"
       excludeAll(ExclusionRule("org.scala-lang", "scala-reflect"), ExclusionRule("org.scala-lang", "scala-actors")),
     "org.slf4j" % "slf4j-log4j12" % "1.7.1" % "test"
   )
-}
 
 parallelExecution in Test := false
 
