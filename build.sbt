@@ -25,6 +25,8 @@ name := "Digi-Lib-SLF4J"
 
 description := "SLF4J binding for Digi components"
 
+licenses := Seq("The Apache Software License, Version 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
+
 organization := "org.digimead"
 
 organizationHomepage := Some(url("http://digimead.org"))
