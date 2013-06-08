@@ -9,23 +9,21 @@ DOCUMENTATION
 
 ### Setup
 
-Add Maven or Ivy repository:
+```scala
+libraryDependencies += "org.digimead" %% "digi-lib-slf4j" % "0.2.2.1"
+```
+
+Maven repository
 
 ```scala
 resolvers += "digimead-maven" at "http://storage.googleapis.com/maven.repository.digimead.org/"
 ```
 
+Ivy repository
+
 ```scala
 resolvers += Resolver.url("digimead-ivy", url("http://storage.googleapis.com/ivy.repository.digimead.org/"))(Resolver.defaultIvyPatterns)
 ```
-
-Add dependency:
-
-```scala
-libraryDependencies += "org.digimead" %% "digi-lib-slf4j" % "VERSION"
-```
-
-### [API (latest version)](http://ezh.github.com/digi-lib-slf4j/api/)
 
 ## Target platform
 
