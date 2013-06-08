@@ -1,4 +1,4 @@
-digi-lib-slf4j [![Build Status](https://travis-ci.org/ezh/digi-lib-slf4j.png?branch=master)](https://travis-ci.org/ezh/digi-lib-slf4j) [![Coverage Status](https://coveralls.io/repos/ezh/digi-lib-slf4j/badge.png?branch=master)](https://coveralls.io/r/ezh/digi-lib-slf4j?branch=master)
+digi-lib-slf4j [![Build Status](https://travis-ci.org/ezh/digi-lib-slf4j.png?branch=master)](https://travis-ci.org/ezh/digi-lib-slf4j)
 ==============
 SLF4J binding for Digi components
 
