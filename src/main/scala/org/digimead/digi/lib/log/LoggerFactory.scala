@@ -28,7 +28,6 @@ import scala.util.control.Breaks.breakable
 
 import org.digimead.digi.lib.DependencyInjection
 import org.digimead.digi.lib.log.logger.BaseLogger
-import org.digimead.digi.lib.log.logger.RichLogger.rich2slf4j
 import org.slf4j.ILoggerFactory
 
 import com.escalatesoft.subcut.inject.BindingModule
@@ -72,24 +71,27 @@ object LoggerFactory extends ILoggerFactory {
         run
     }
     def threadSuspend() = lock.synchronized {
-      assert(lock.get.nonEmpty, "lock disabled, BufferedLogThread deinitialized")
+      if (lock.get.isEmpty)
+        throw new IllegalStateException("Lock disabled, BufferedLogThread is deinitialized.")
       lock.set(Some(false))
       lock.notifyAll()
     }
     def threadResume() = lock.synchronized {
-      assert(lock.get.nonEmpty, "lock disabled, BufferedLogThread deinitialized")
+      if (lock.get.isEmpty)
+        throw new IllegalStateException("Lock disabled, BufferedLogThread is deinitialized.")
       lock.set(Some(true))
       lock.notifyAll()
     }
     def deinit() = lock.synchronized {
-      assert(lock.get.nonEmpty, "lock disabled, BufferedLogThread deinitialized")
+      if (lock.get.isEmpty)
+        throw new IllegalStateException("Lock disabled, BufferedLogThread is deinitialized.")
       lock.set(None)
       Logging.inner.bufferedQueue.synchronized { Logging.inner.bufferedQueue.notifyAll }
       lock.notifyAll()
     }
   }
   protected[log] def shutdownHook() {
-    Logging.addToLog(new Date(), Thread.currentThread.getId, Record.Level.Debug, Logging.inner.commonLogger.getName, "buffered logging is preparing for shutdown")
+    Logging.addToLog(new Date(), Thread.currentThread.getId, Record.Level.Debug, Logging.inner.commonLogger.getName, "Buffered logging is preparing for shutdown.")
     def isQueueEmpty(): Boolean = {
       if (!Logging.inner.bufferedQueue.isEmpty)
         return false
@@ -104,8 +106,7 @@ object LoggerFactory extends ILoggerFactory {
         else
           Logging.inner.flush(0)
     }
-    Logging.addToLog(new Date(), Thread.currentThread.getId, Record.Level.Debug, Logging.inner.commonLogger.getName, "no more log messages, shutdown")
-    Logging.inner.deinit()
+    Logging.addToLog(new Date(), Thread.currentThread.getId, Record.Level.Debug, Logging.inner.commonLogger.getName, "No more log messages, shutdown.")
   }
 
   /**
@@ -122,12 +123,7 @@ object LoggerFactory extends ILoggerFactory {
    * Dependency injection routines
    */
   private object DI extends DependencyInjection.PersistentInjectable {
-    implicit def bindingModule = DependencyInjection()
     /** Logging configuration DI cache */
-    @volatile var configuration = inject[Configuration]
-
-    override def injectionAfter(newModule: BindingModule) {
-      configuration = inject[Configuration]
-    }
+    val configuration = inject[Configuration]
   }
 }
