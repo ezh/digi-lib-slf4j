@@ -61,7 +61,13 @@ object LoggerFactory extends ILoggerFactory {
     final override def run() = {
       val logging = Logging.inner
       if (!logging.bufferedQueue.isEmpty) {
-        logging.flushQueue(flushLimit, 100)
+        try {
+          logging.flushQueue(flushLimit, 100)
+        } catch {
+          case e: Throwable =>
+            // This is the best of the worst: log thread is alive
+            e.printStackTrace()
+        }
         Thread.sleep(50)
       } else
         logging.bufferedQueue.synchronized { logging.bufferedQueue.wait }

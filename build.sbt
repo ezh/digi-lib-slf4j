@@ -17,7 +17,7 @@
 
 import sbt.osgi.manager._
 
-OSGiManager ++ sbt.scct.ScctPlugin.instrumentSettings
+OSGiManager // ++ sbt.scct.ScctPlugin.instrumentSettings
 
 name := "Digi-Lib-SLF4J"
 
@@ -63,8 +63,8 @@ if (sys.env.contains("XBOOTCLASSPATH")) Seq(javacOptions += "-Xbootclasspath:" +
 resolvers += "digimead-maven" at "http://storage.googleapis.com/maven.repository.digimead.org/"
 
 libraryDependencies ++= Seq(
-    "org.digimead" %% "digi-lib" % "0.2.3.1",
-    "org.digimead" %% "digi-lib-test" % "0.2.2.1" % "test"
+    "org.digimead" %% "digi-lib" % "0.2.3.2",
+    "org.digimead" %% "digi-lib-test" % "0.2.2.2" % "test"
       excludeAll(ExclusionRule("org.slf4j", "slf4j-log4j12"))
   )
 
@@ -73,10 +73,6 @@ libraryDependencies ++= Seq(
 //
 
 parallelExecution in Test := false
-
-parallelExecution in sbt.scct.ScctPlugin.ScctTest := false
-
-fork in Test := true
 
 testGrouping <<= (definedTests in Test) map { tests =>
   tests map { test =>
