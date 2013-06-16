@@ -17,51 +17,70 @@
 
 import sbt.osgi.manager._
 
-sbt.scct.ScctPlugin.instrumentSettings
-
-activateOSGiManager
+OSGiManager // ++ sbt.scct.ScctPlugin.instrumentSettings
 
 name := "Digi-Lib-SLF4J"
 
 description := "SLF4J binding for Digi components"
 
+licenses := Seq("The Apache Software License, Version 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
+
 organization := "org.digimead"
+
+organizationHomepage := Some(url("http://digimead.org"))
+
+homepage := Some(url("https://github.com/ezh/digi-lib-slf4j"))
 
 version <<= (baseDirectory) { (b) => scala.io.Source.fromFile(b / "version").mkString.trim }
 
 inConfig(OSGiConf)({
   import OSGiKey._
   Seq[Project.Setting[_]](
-    osgiBndBundleSymbolicName := "org.digimead.digi.lib",
-    osgiBndImportPackage := List("!org.aspectj.lang", "*"),
-    osgiBndExportPackage := List("org.digimead.*", "org.slf4j.impl.*")
+    osgiBndBundleSymbolicName := "org.digimead.digi.lib.slf4j",
+    osgiBndBundleCopyright := "Copyright © 2011-2013 Alexey B. Aksenov/Ezh. All rights reserved.",
+    osgiBndExportPackage := List("org.digimead.*", "org.slf4j.impl.*"),
+    osgiBndImportPackage := List("!org.aspectj.*", "*"),
+    osgiBndBundleLicense := "http://www.apache.org/licenses/LICENSE-2.0.txt;description=The Apache Software License, Version 2.0"
   )
 })
 
-crossScalaVersions := Seq("2.10.1")
+crossScalaVersions := Seq("2.10.2")
 
-scalaVersion := "2.10.1"
+scalaVersion := "2.10.2"
 
 scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-unchecked", "-Xcheckinit", "-feature") ++
   (if (true || (System getProperty "java.runtime.version" startsWith "1.7")) Seq() else Seq("-optimize")) // -optimize fails with jdk7
 
+// http://vanillajava.blogspot.ru/2012/02/using-java-7-to-target-much-older-jvms.html
 javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation", "-source", "1.6", "-target", "1.6")
 
-publishTo  <<= baseDirectory  { (base) => Some(Resolver.file("file",  base / "publish/releases" )) }
+if (sys.env.contains("XBOOTCLASSPATH")) Seq(javacOptions += "-Xbootclasspath:" + sys.env("XBOOTCLASSPATH")) else Seq()
 
-libraryDependencies ++= {
-  Seq(
-    "org.digimead" %% "digi-lib" % "0.2.3",
-    "org.scalatest" %% "scalatest" % "1.9.1" % "test"
-      excludeAll(ExclusionRule("org.scala-lang", "scala-reflect"), ExclusionRule("org.scala-lang", "scala-actors")),
-    "org.slf4j" % "slf4j-log4j12" % "1.7.1" % "test"
+//
+// Custom local options
+//
+
+resolvers += "digimead-maven" at "http://storage.googleapis.com/maven.repository.digimead.org/"
+
+libraryDependencies ++= Seq(
+    "org.digimead" %% "digi-lib" % "0.2.3.2",
+    "org.digimead" %% "digi-lib-test" % "0.2.2.2" % "test"
+      excludeAll(ExclusionRule("org.slf4j", "slf4j-log4j12"))
   )
-}
+
+//
+// Testing
+//
 
 parallelExecution in Test := false
 
-parallelExecution in sbt.scct.ScctPlugin.ScctTest := false
-
-//sourceDirectory in Test <<= baseDirectory / "Testing Infrastructure Is Absent"
+testGrouping <<= (definedTests in Test) map { tests =>
+  tests map { test =>
+    new Tests.Group(
+      name = test.name,
+      tests = Seq(test),
+      runPolicy = Tests.SubProcess(javaOptions = Seq.empty[String]))
+  }
+}
 
 //logLevel := Level.Debug
