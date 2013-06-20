@@ -97,7 +97,8 @@ object LoggerFactory extends ILoggerFactory {
     }
   }
   protected[log] def shutdownHook() {
-    Logging.addToLog(new Date(), Thread.currentThread.getId, Record.Level.Debug, Logging.inner.commonLogger.getName, "Buffered logging is preparing for shutdown.")
+    Logging.addToLog(new Date(), Thread.currentThread.getId, Record.Level.Debug, Logging.inner.commonLogger.getName,
+      Logging.inner.getClass(), "Buffered logging is preparing for shutdown.")
     def isQueueEmpty(): Boolean = {
       if (!Logging.inner.bufferedQueue.isEmpty)
         return false
@@ -112,7 +113,8 @@ object LoggerFactory extends ILoggerFactory {
         else
           Logging.inner.flush(0)
     }
-    Logging.addToLog(new Date(), Thread.currentThread.getId, Record.Level.Debug, Logging.inner.commonLogger.getName, "No more log messages, shutdown.")
+    Logging.addToLog(new Date(), Thread.currentThread.getId, Record.Level.Debug, Logging.inner.commonLogger.getName,
+      Logging.inner.getClass(), "No more log messages, shutdown.")
   }
 
   /**

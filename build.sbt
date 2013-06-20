@@ -38,7 +38,13 @@ inConfig(OSGiConf)({
   Seq[Project.Setting[_]](
     osgiBndBundleSymbolicName := "org.digimead.digi.lib.slf4j",
     osgiBndBundleCopyright := "Copyright © 2011-2013 Alexey B. Aksenov/Ezh. All rights reserved.",
-    osgiBndExportPackage := List("org.digimead.*", "org.slf4j.impl.*"),
+    osgiBndExportPackage := List(
+      // Export all bundle packages
+      "org.digimead.*",
+      // Reexport org.digimead.digi.lib.log.appender from Digi-Lib. We use it in DI.
+      "org.digimead.digi.lib.log.appender",
+      // Export org.slf4j.impl as version 1.6.0 because slf4j-api-1.7.5 required 1.6.0. King regards for fucking developers of SLF4J.
+      "org.slf4j.impl;version=1.6.0"),
     osgiBndImportPackage := List("!org.aspectj.*", "*"),
     osgiBndBundleLicense := "http://www.apache.org/licenses/LICENSE-2.0.txt;description=The Apache Software License, Version 2.0"
   )
@@ -63,8 +69,8 @@ if (sys.env.contains("XBOOTCLASSPATH")) Seq(javacOptions += "-Xbootclasspath:" +
 resolvers += "digimead-maven" at "http://storage.googleapis.com/maven.repository.digimead.org/"
 
 libraryDependencies ++= Seq(
-    "org.digimead" %% "digi-lib" % "0.2.3.2",
-    "org.digimead" %% "digi-lib-test" % "0.2.2.2" % "test"
+    "org.digimead" %% "digi-lib" % "0.2.3.3-SNAPSHOT",
+    "org.digimead" %% "digi-lib-test" % "0.2.2.3-SNAPSHOT" % "test"
       excludeAll(ExclusionRule("org.slf4j", "slf4j-log4j12"))
   )
 
