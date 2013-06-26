@@ -26,7 +26,8 @@ import scala.annotation.tailrec
 import scala.util.control.Breaks.break
 import scala.util.control.Breaks.breakable
 
-import org.digimead.digi.lib.DependencyInjection
+import org.digimead.digi.lib.api.DependencyInjection
+import org.digimead.digi.lib.log.api.Level
 import org.digimead.digi.lib.log.logger.BaseLogger
 import org.slf4j.ILoggerFactory
 
@@ -97,7 +98,7 @@ object LoggerFactory extends ILoggerFactory {
     }
   }
   protected[log] def shutdownHook() {
-    Logging.addToLog(new Date(), Thread.currentThread.getId, Record.Level.Debug, Logging.inner.commonLogger.getName,
+    Logging.addToLog(new Date(), Thread.currentThread.getId, Level.Debug, Logging.inner.commonLogger.getName,
       Logging.inner.getClass(), "Buffered logging is preparing for shutdown.")
     def isQueueEmpty(): Boolean = {
       if (!Logging.inner.bufferedQueue.isEmpty)
@@ -113,7 +114,7 @@ object LoggerFactory extends ILoggerFactory {
         else
           Logging.inner.flush(0)
     }
-    Logging.addToLog(new Date(), Thread.currentThread.getId, Record.Level.Debug, Logging.inner.commonLogger.getName,
+    Logging.addToLog(new Date(), Thread.currentThread.getId, Level.Debug, Logging.inner.commonLogger.getName,
       Logging.inner.getClass(), "No more log messages, shutdown.")
   }
 

@@ -25,6 +25,7 @@ import java.io.ObjectOutputStream
 
 import org.digimead.digi.lib.DependencyInjection
 import org.digimead.digi.lib.log.api.Loggable
+import org.digimead.digi.lib.log.api.Level
 import org.digimead.lib.test.OSGiHelper
 import org.scalatest.BeforeAndAfter
 import org.scalatest.WordSpec
@@ -85,8 +86,8 @@ class LogSpec000 extends WordSpec with OSGiHelper with BeforeAndAfter with Shoul
       thread.start
       thread.join()
       Logging.inner.bufferedQueue.size() should be(size + 1)
-      val record = Logging.inner.bufferedQueue.toArray.last.asInstanceOf[Record.Message]
-      record.level should be(Record.Level.Debug)
+      val record = Logging.inner.bufferedQueue.toArray.last.asInstanceOf[Message]
+      record.level should be(Level.Debug)
       record.message should be("hello")
     }
   }

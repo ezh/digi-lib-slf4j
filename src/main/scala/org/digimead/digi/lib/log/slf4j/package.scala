@@ -21,7 +21,7 @@ package org.digimead.digi.lib.log
 import scala.collection.immutable.HashSet
 
 import org.digimead.digi.lib.DependencyInjection
-import org.digimead.digi.lib.log.appender.Appender
+import org.digimead.digi.lib.log.api.Appender
 import org.digimead.digi.lib.log.appender.Console
 
 import com.escalatesoft.subcut.inject.NewBindingModule

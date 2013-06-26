@@ -69,8 +69,8 @@ if (sys.env.contains("XBOOTCLASSPATH")) Seq(javacOptions += "-Xbootclasspath:" +
 resolvers += "digimead-maven" at "http://storage.googleapis.com/maven.repository.digimead.org/"
 
 libraryDependencies ++= Seq(
-    "org.digimead" %% "digi-lib" % "0.2.3.3-SNAPSHOT",
-    "org.digimead" %% "digi-lib-test" % "0.2.2.3-SNAPSHOT" % "test"
+    "org.digimead" %% "digi-lib" % "0.2.3.4-SNAPSHOT",
+    "org.digimead" %% "digi-lib-test" % "0.2.2.4-SNAPSHOT" % "test"
       excludeAll(ExclusionRule("org.slf4j", "slf4j-log4j12"))
   )
 
