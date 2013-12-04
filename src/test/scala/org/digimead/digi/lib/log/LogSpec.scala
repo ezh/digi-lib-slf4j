@@ -29,11 +29,11 @@ import org.digimead.digi.lib.log.api.Level
 import org.digimead.lib.test.OSGiHelper
 import org.scalatest.BeforeAndAfter
 import org.scalatest.WordSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.Matchers
 
 import com.escalatesoft.subcut.inject.NewBindingModule
 
-class LogSpec000 extends WordSpec with OSGiHelper with BeforeAndAfter with ShouldMatchers with Loggable {
+class LogSpec000 extends WordSpec with OSGiHelper with BeforeAndAfter with Matchers with Loggable {
   val testBundleClass = org.digimead.digi.lib.log.slf4j.default.getClass()
 
   "A Log" should {
@@ -94,7 +94,7 @@ class LogSpec000 extends WordSpec with OSGiHelper with BeforeAndAfter with Shoul
   class Test extends Loggable
 }
 
-class LogSpec001 extends WordSpec with ShouldMatchers {
+class LogSpec001 extends WordSpec with Matchers {
   "A Log" should {
     "create singeton with default parameters" in {
       val config = org.digimead.digi.lib.log.slf4j.default ~ org.digimead.digi.lib.default
