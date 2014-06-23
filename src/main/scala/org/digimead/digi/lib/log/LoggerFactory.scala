@@ -1,7 +1,7 @@
 /**
  * Digi-Lib-SLF4J - SLF4J binding for Digi components
  *
- * Copyright (c) 2012-2013 Alexey Aksenov ezh@ezh.msk.ru
+ * Copyright (c) 2012-2014 Alexey Aksenov ezh@ezh.msk.ru
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,21 +18,15 @@
 
 package org.digimead.digi.lib.log
 
+import com.escalatesoft.subcut.inject.{ BindingModule, Injectable ⇒ SubCutInjectable }
 import java.util.Date
 import java.util.concurrent.atomic.AtomicReference
-
-import scala.Option.option2Iterable
-import scala.annotation.tailrec
-import scala.util.control.Breaks.break
-import scala.util.control.Breaks.breakable
-
-import org.digimead.digi.lib.api.DependencyInjection
-import org.digimead.digi.lib.log.api.Level
+import org.digimead.digi.lib.api.XDependencyInjection
+import org.digimead.digi.lib.log.api.XLevel
 import org.digimead.digi.lib.log.logger.BaseLogger
 import org.slf4j.ILoggerFactory
-
-import com.escalatesoft.subcut.inject.BindingModule
-import com.escalatesoft.subcut.inject.{ Injectable => SubCutInjectable }
+import scala.annotation.tailrec
+import scala.util.control.Breaks.{ break, breakable }
 
 object LoggerFactory extends ILoggerFactory {
 
@@ -65,7 +59,7 @@ object LoggerFactory extends ILoggerFactory {
         try {
           logging.flushQueue(flushLimit, 100)
         } catch {
-          case e: Throwable =>
+          case e: Throwable ⇒
             // This is the best of the worst: log thread is alive
             e.printStackTrace()
         }
@@ -98,7 +92,7 @@ object LoggerFactory extends ILoggerFactory {
     }
   }
   protected[log] def shutdownHook() {
-    Logging.addToLog(new Date(), Thread.currentThread.getId, Level.Debug, Logging.inner.commonLogger.getName,
+    Logging.addToLog(new Date(), Thread.currentThread.getId, XLevel.Debug, Logging.inner.commonLogger.getName,
       Logging.inner.getClass(), "Buffered logging is preparing for shutdown.")
     def isQueueEmpty(): Boolean = {
       if (!Logging.inner.bufferedQueue.isEmpty)
@@ -108,13 +102,13 @@ object LoggerFactory extends ILoggerFactory {
     }
     // wait for log messages 10min before termination
     breakable {
-      for (i <- 0 to 1200)
+      for (i ← 0 to 1200)
         if (isQueueEmpty())
           break
         else
           Logging.inner.flush(0)
     }
-    Logging.addToLog(new Date(), Thread.currentThread.getId, Level.Debug, Logging.inner.commonLogger.getName,
+    Logging.addToLog(new Date(), Thread.currentThread.getId, XLevel.Debug, Logging.inner.commonLogger.getName,
       Logging.inner.getClass(), "No more log messages, shutdown.")
   }
 
@@ -131,7 +125,7 @@ object LoggerFactory extends ILoggerFactory {
   /**
    * Dependency injection routines
    */
-  private object DI extends DependencyInjection.PersistentInjectable {
+  private object DI extends XDependencyInjection.PersistentInjectable {
     /** Logging configuration DI cache */
     val configuration = inject[Configuration]
   }

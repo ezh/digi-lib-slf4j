@@ -1,7 +1,7 @@
 /**
  * Digi-Lib-SLF4J - SLF4J binding for Digi components
  *
- * Copyright (c) 2012-2013 Alexey Aksenov ezh@ezh.msk.ru
+ * Copyright (c) 2012-2014 Alexey Aksenov ezh@ezh.msk.ru
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,22 +18,14 @@
 
 package org.digimead.digi.lib.log
 
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
-
-import org.digimead.digi.lib.DependencyInjection
-import org.digimead.digi.lib.log.api.Loggable
-import org.digimead.digi.lib.log.api.Level
-import org.digimead.lib.test.OSGiHelper
-import org.scalatest.BeforeAndAfter
-import org.scalatest.WordSpec
-import org.scalatest.Matchers
-
 import com.escalatesoft.subcut.inject.NewBindingModule
+import java.io.{ ByteArrayInputStream, ByteArrayOutputStream, ObjectInputStream, ObjectOutputStream }
+import org.digimead.digi.lib.DependencyInjection
+import org.digimead.digi.lib.log.api.{ XLevel, XLoggable }
+import org.digimead.lib.test.OSGiHelper
+import org.scalatest.{ BeforeAndAfter, Matchers, WordSpec }
 
-class LogSpec000 extends WordSpec with OSGiHelper with BeforeAndAfter with Matchers with Loggable {
+class LogSpec000 extends WordSpec with OSGiHelper with BeforeAndAfter with Matchers with XLoggable {
   val testBundleClass = org.digimead.digi.lib.log.slf4j.default.getClass()
 
   "A Log" should {
@@ -50,7 +42,7 @@ class LogSpec000 extends WordSpec with OSGiHelper with BeforeAndAfter with Match
       loggerFactoryConfig.isTraceEnabled should be(true)
       LoggerFactory.getLogger("A").isTraceEnabled() should be(true)
 
-      val newConfig = config ~ (NewBindingModule.newBindingModule(module => {
+      val newConfig = config ~ (NewBindingModule.newBindingModule(module ⇒ {
         module.bind[Boolean] identifiedBy "Log.TraceEnabled" toSingle { false }
       }))
       DependencyInjection(newConfig, false)
@@ -78,7 +70,7 @@ class LogSpec000 extends WordSpec with OSGiHelper with BeforeAndAfter with Match
       val size = Logging.inner.bufferedQueue.size()
       val thread = new Thread {
         override def run {
-          val testClass = new Loggable() {
+          val testClass = new XLoggable() {
             log.debug("hello")
           }
         }
@@ -87,11 +79,11 @@ class LogSpec000 extends WordSpec with OSGiHelper with BeforeAndAfter with Match
       thread.join()
       Logging.inner.bufferedQueue.size() should be(size + 1)
       val record = Logging.inner.bufferedQueue.toArray.last.asInstanceOf[Message]
-      record.level should be(Level.Debug)
+      record.level should be(XLevel.Debug)
       record.message should be("hello")
     }
   }
-  class Test extends Loggable
+  class Test extends XLoggable
 }
 
 class LogSpec001 extends WordSpec with Matchers {
@@ -110,7 +102,7 @@ class LogSpec001 extends WordSpec with Matchers {
       instance.bufferedAppender.head.getClass should be(org.digimead.digi.lib.log.appender.Console.getClass)
       instance.richLogger.size should be(0)
       instance.bufferedQueue.size() should be(0)
-      val testClass = new Loggable {
+      val testClass = new XLoggable {
         log.debug("hello")
       }
       instance.bufferedQueue.size() should be(1)
@@ -129,5 +121,5 @@ class LogSpec001 extends WordSpec with Matchers {
 }
 
 object LogSpec {
-  class LogSerializable extends Loggable with java.io.Serializable
+  class LogSerializable extends XLoggable with java.io.Serializable
 }

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2012-2013 Alexey Aksenov ezh@ezh.msk.ru
+// Copyright (c) 2012-2014 Alexey Aksenov ezh@ezh.msk.ru
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ inConfig(OSGiConf)({
   import OSGiKey._
   Seq[Project.Setting[_]](
     osgiBndBundleSymbolicName := "org.digimead.digi.lib.slf4j",
-    osgiBndBundleCopyright := "Copyright © 2011-2013 Alexey B. Aksenov/Ezh. All rights reserved.",
+    osgiBndBundleCopyright := "Copyright © 2011-2014 Alexey B. Aksenov/Ezh. All rights reserved.",
     osgiBndExportPackage := List(
       // Export all bundle packages
       "org.digimead.*",
@@ -50,17 +50,16 @@ inConfig(OSGiConf)({
   )
 })
 
-crossScalaVersions := Seq("2.10.4")
+crossScalaVersions := Seq("2.11.1")
 
-scalaVersion := "2.10.4"
+scalaVersion := "2.11.1"
 
-scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-unchecked", "-Xcheckinit", "-feature") ++
-  (if (true || (System getProperty "java.runtime.version" startsWith "1.7")) Seq() else Seq("-optimize")) // -optimize fails with jdk7
+scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-unchecked", "-Xcheckinit", "-feature")
 
 // http://vanillajava.blogspot.ru/2012/02/using-java-7-to-target-much-older-jvms.html
-javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation", "-source", "1.6", "-target", "1.6")
+javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation", "-source", "1.7", "-target", "1.7")
 
-javacOptions in doc := Seq("-source", "1.6")
+javacOptions in doc := Seq("-source", "1.7")
 
 if (sys.env.contains("XBOOTCLASSPATH")) Seq(javacOptions += "-Xbootclasspath:" + sys.env("XBOOTCLASSPATH")) else Seq()
 
@@ -71,8 +70,8 @@ if (sys.env.contains("XBOOTCLASSPATH")) Seq(javacOptions += "-Xbootclasspath:" +
 resolvers += "digimead-maven" at "http://storage.googleapis.com/maven.repository.digimead.org/"
 
 libraryDependencies ++= Seq(
-    "org.digimead" %% "digi-lib" % "0.2.3.5-SNAPSHOT",
-    "org.digimead" %% "digi-lib-test" % "0.2.2.5-SNAPSHOT" % "test"
+    "org.digimead" %% "digi-lib" % "0.3.0.0-SNAPSHOT",
+    "org.digimead" %% "digi-lib-test" % "0.3.0.0-SNAPSHOT" % "test"
       excludeAll(ExclusionRule("org.slf4j", "slf4j-log4j12"))
   )
 
