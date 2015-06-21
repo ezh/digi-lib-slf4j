@@ -66,8 +66,8 @@ javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation")
 resolvers += "digimead-maven" at "http://storage.googleapis.com/maven.repository.digimead.org/"
 
 libraryDependencies ++= Seq(
-    "org.digimead" %% "digi-lib" % "0.3.0.3",
-    "org.digimead" %% "digi-lib-test" % "0.3.0.3" % "test"
+    "org.digimead" %% "digi-lib" % "0.3.1.3",
+    "org.digimead" %% "digi-lib-test" % "0.3.1.3" % "test"
       excludeAll(ExclusionRule("org.slf4j", "slf4j-log4j12"))
   )
 
